@@ -1,0 +1,105 @@
+---
+title: "Predict House Price - Econometría en R"
+output: html_notebook
+---
+
+### Fernando Sagastume
+### Carnet: 17004989
+
+
+En esta competencia se busca predecir la columna median_house_value usando modelos de regresión. Considere los siguientes aspectos para la competencia:
+
+* Se pueden utilizar cualquier algoritmo de regresión que deseen excepto redes neuronales.
+* Se utilizará el RMSE como medida para la competencia, se le proporcionarán dos datasets, el dataset de entrenamiento y el dataset de prueba, la métrica del RMSE se calculará sobre el el dataset de prueba y se comparará contra las observaciones reales del median_house_value.
+* No está permitido copiar código ni realizar plagio, si utiliza código de otra persona debe acreditarlo adecuadamente.
+
+## Análisis Exploratorio
+
+```{r}
+  # Se importan librerias
+  library(corrplot)
+  library(ggplot2)
+  library(readr)
+  library(lubridate)
+  library(dplyr)
+  library(PerformanceAnalytics)
+  library(tidyverse)
+```
+
+
+```{r}
+# Se cargan los set de datos (train, test)
+train_df <- read_csv("data/train.csv")
+test_df <- read_csv("data/test.csv")
+train_df<-na.omit(train_df)
+#test_df<-na.omit(test_df)
+head(train_df)
+```
+
+```{r}
+# Se obtienen datos estádisticos del set de datos a entrenar
+summary(train_df)
+```
+```{r}
+# Se obtiene la correlación entre variables
+train_var<-train_df %>% 
+  select("longitude", "latitude", "housing_median_age", "total_rooms", "total_bedrooms", "population","households", "median_income", "median_house_value")
+cor(train_var)
+```
+
+## Grafica de correlación entre variables seleccionadas
+
+```{r}
+# Se obtiene la correlación entre variables seleccionadas
+train_selec<-train_df %>% 
+  select("housing_median_age", "total_rooms", "total_bedrooms", "median_income", "households", "median_house_value")
+chart.Correlation(train_selec, histogram = TRUE, cex=1)
+```
+
+## Modelo de Regresión Lineal Múltiple
+
+```{r}
+multipleLR<-train_df %>% 
+  select("housing_median_age", "total_rooms","median_income", "households", "total_bedrooms", "median_house_value") %>%
+  lm(formula = median_house_value ~ housing_median_age + total_rooms + median_income + households + total_bedrooms)
+
+summary(multipleLR)
+```
+
+```{r}
+# Se toman las variables dependientes del modelo para la predicción
+test_data <- test_df %>% 
+  select("housing_median_age", "total_rooms","median_income", "households", "total_bedrooms")
+
+predicciones<-predict(multipleLR, newdata = test_data)
+head(predicciones)
+```
+## Preparando para subir a Kaggle
+
+```{r}
+resultadosMLM <- test_df %>% select("id")
+resultadosMLM$median_house_value <- predicciones
+resultadosMLM <- resultadosMLM %>% replace_na(list(median_house_value = 0))
+resultadosMLM
+```
+
+
+```{r}
+current_date_time <- format(Sys.time(), "%Y-%m-%d_%H%M%S")
+nombreArchivo<-paste("data/resultados/resultadosModelo_", as.character(current_date_time), ".csv", sep="")
+# Se mandan los resultados para un archivo csv, para subir a kaggle
+resultadosMLM %>% write_csv(nombreArchivo)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
