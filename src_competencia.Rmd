@@ -40,13 +40,26 @@ head(train_df)
 ```
 
 ```{r}
+# Se realiza label encoding para poder tomar en cuenta los valores de ocean_proximity
+# Se convierte la columna en un factor
+train_df$ocean_proximity <- factor(train_df$ocean_proximity)
+test_df$ocean_proximity <- factor(test_df$ocean_proximity)
+
+# Se asignan valores numéricos a cada nivel del factor
+train_df$ocean_proximity <- as.integer(train_df$ocean_proximity)
+test_df$ocean_proximity <- as.integer(test_df$ocean_proximity)
+head(train_df)
+```
+
+
+```{r}
 # Se obtienen datos estádisticos del set de datos a entrenar
 summary(train_df)
 ```
 ```{r}
 # Se obtiene la correlación entre variables
 train_var<-train_df %>% 
-  select("longitude", "latitude", "housing_median_age", "total_rooms", "total_bedrooms", "population","households", "median_income", "median_house_value")
+  select("longitude", "latitude", "housing_median_age", "total_rooms", "total_bedrooms", "population","households", "median_income", "ocean_proximity", "median_house_value")
 cor(train_var)
 ```
 
@@ -55,7 +68,7 @@ cor(train_var)
 ```{r}
 # Se obtiene la correlación entre variables seleccionadas
 train_selec<-train_df %>% 
-  select("housing_median_age", "total_rooms", "total_bedrooms", "median_income", "households", "median_house_value")
+  select("housing_median_age", "total_rooms", "total_bedrooms", "median_income", "households", "ocean_proximity", "median_house_value")
 chart.Correlation(train_selec, histogram = TRUE, cex=1)
 ```
 
@@ -63,8 +76,8 @@ chart.Correlation(train_selec, histogram = TRUE, cex=1)
 
 ```{r}
 multipleLR<-train_df %>% 
-  select("housing_median_age", "total_rooms","median_income", "households", "total_bedrooms", "median_house_value") %>%
-  lm(formula = median_house_value ~ housing_median_age + total_rooms + median_income + households + total_bedrooms)
+  select("housing_median_age", "total_rooms","median_income", "total_bedrooms", "ocean_proximity", "median_house_value") %>%
+  lm(formula = median_house_value ~ housing_median_age + total_rooms + median_income + total_bedrooms + ocean_proximity)
 
 summary(multipleLR) # Este modelo me dio 83316.89941 de score en el leaderboard
 ```
@@ -72,7 +85,7 @@ summary(multipleLR) # Este modelo me dio 83316.89941 de score en el leaderboard
 ```{r}
 # Se toman las variables dependientes del modelo para la predicción
 test_data <- test_df %>% 
-  select("housing_median_age", "total_rooms","median_income", "households", "total_bedrooms")
+  select("housing_median_age", "total_rooms","median_income", "households", "total_bedrooms", "ocean_proximity")
 
 # Se remplazan los valores faltantes en el conjunto de datos de prueba con la media
 test_data <- na.aggregate(test_data, FUN = mean)
@@ -116,13 +129,13 @@ resultadostree
 
 ```{r}
 # Selección de variables predictoras
-predictores_forest <- train_df[, c("housing_median_age", "total_rooms", "median_income", "households", "total_bedrooms")]
+predictores_forest <- train_df[, c("housing_median_age", "total_rooms", "median_income", "households", "ocean_proximity", "total_bedrooms")]
 
 # Variable objetivo
 target_forest <- train_df$median_house_value
 
 # Crear el modelo de Random Forest
-forest_model <- randomForest(predictores_forest, target_forest) # Resultado en el leaderboard 55538.52170
+forest_model <- randomForest(predictores_forest, target_forest) # Resultado en el leaderboard 49161.05484
 
 summary(forest_model)
 ```
