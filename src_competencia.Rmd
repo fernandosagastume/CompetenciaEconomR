@@ -27,6 +27,7 @@ En esta competencia se busca predecir la columna median_house_value usando model
   library(caret)
   library(rpart)
   library(randomForest)
+  library(glmnet)
 ```
 
 
@@ -154,8 +155,6 @@ resultadosForest$median_house_value <- forest_predicciones
 resultadosForest
 ```
 
-
-
 ## Código que crea el archivo para hacer submissions
 
 ```{r}
@@ -164,6 +163,48 @@ nombreArchivo<-paste("data/resultados/resultadosModelo_", as.character(current_d
 # Se mandan los resultados para un archivo csv, para subir a kaggle
 resultadosForest %>% write_csv(nombreArchivo)
 ```
+
+
+## Modelo utilizando tecnicas de regularización
+
+```{r}
+# Por tema de orden se vuelven a dividir y seleccionar los datos
+#X_train <- train_df %>% 
+#  select("housing_median_age", "total_rooms","median_income", "total_bedrooms", "ocean_proximity")
+#X_train <- as.matrix(X_train)
+#y_train <- train_df$median_house_value
+```
+
+```{r}
+# Entrenar el modelo de regresión lineal regularizada
+#ridge_model <- glmnet(X_train, y_train, alpha = 0, lambda = 0.1)
+
+#ridge_model
+```
+```{r}
+# Se toman las variables dependientes del modelo para la predicción
+#test_data <- test_df %>% 
+ # select("housing_median_age", "total_rooms","median_income", "total_bedrooms", "ocean_proximity")
+
+# Se remplazan los valores faltantes en el conjunto de datos de prueba con la media
+#test_data <- na.aggregate(test_data, FUN = mean)
+#test_data <- as.matrix(test_data)
+
+#regularizacion_pred<-predict(ridge_model, newx = test_data)
+#head(regularizacion_pred)
+```
+
+```{r}
+#typeof(regularizacion_pred)
+```
+
+
+```{r}
+#resultadosRegularizacion <- test_df %>% select("id")
+#resultadosRegularizacion$median_house_value <- regularizacion_pred[, 1]
+#resultadosRegularizacion
+```
+
 
 
 

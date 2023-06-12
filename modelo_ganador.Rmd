@@ -1,0 +1,159 @@
+---
+title: "Notebook Modelo Ganador"
+output: html_notebook
+---
+
+# En este notebook se trabaja el modelo ganador
+
+```{r}
+  # Se importan librerias
+  library(corrplot)
+  library(ggplot2)
+  library(readr)
+  library(lubridate)
+  library(dplyr)
+  library(PerformanceAnalytics)
+  library(tidyverse)
+  library(caret)
+  library(rpart)
+  library(randomForest)
+  library(glmnet)
+  library(xgboost)
+```
+
+```{r}
+# Se cargan los set de datos (train, test)
+train_df <- read_csv("data/train.csv")
+test_df <- read_csv("data/test.csv")
+#train_df<-na.omit(train_df)
+head(train_df)
+```
+
+```{r}
+# Se realiza label encoding para poder tomar en cuenta los valores de ocean_proximity
+# Se convierte la columna en un factor
+train_df$ocean_proximity <- factor(train_df$ocean_proximity)
+test_df$ocean_proximity <- factor(test_df$ocean_proximity)
+
+# Se asignan valores numéricos a cada nivel del factor
+train_df$ocean_proximity <- as.integer(train_df$ocean_proximity)
+test_df$ocean_proximity <- as.integer(test_df$ocean_proximity)
+head(train_df)
+```
+
+```{r}
+# Se reemplazan los valores nulos con la media en train_df
+train_df <- na.aggregate(train_df, FUN = mean)
+head(train_df)
+```
+
+```{r}
+# Selección de variables predictoras
+predictores_forest <- train_df[, c("housing_median_age", "total_rooms", "median_income", "households", "ocean_proximity", "total_bedrooms")]
+
+# Variable objetivo
+target_forest <- train_df$median_house_value
+
+# Crear el modelo de Random Forest
+forest_model <- randomForest(predictores_forest, target_forest) # Resultado en el leaderboard 49161.05484
+
+summary(forest_model)
+```
+
+
+```{r}
+# Se definen los predictores y la variable objetivo
+predictores <- c("housing_median_age", "total_rooms","median_income", "households", "total_bedrooms", "ocean_proximity")
+target_var <- "median_house_value"
+
+# Se crea la matriz de diseño y la variable respuesta
+X_xgb <- train_df[, predictores]
+y_xgb <- train_df[[target_var]]
+
+"params <- list(
+  objective = reg:squarederror,
+  eta = 0.2,
+  max_depth = 5,
+  min_child_weight = 1,
+  subsample = 0.8,
+  colsample_bytree = 0.8
+)"
+
+# Se entrena el modelo de XGBoost
+xgb_model <- xgboost(data = as.matrix(X_xgb), 
+                     label = y_xgb, 
+                     nrounds = 2000,
+                     eta = 0.4,
+                     objective = "reg:squarederror") # Mejor modelo de momento 44435.01314
+
+
+```
+
+```{r}
+# Se toman las variables dependientes del modelo para la predicción
+test_data <- test_df %>% 
+  select("housing_median_age", "total_rooms","median_income", "households", "total_bedrooms", "ocean_proximity")
+
+# Se remplazan los valores faltantes en el conjunto de datos de prueba con la media
+test_data <- na.aggregate(test_data, FUN = mean)
+```
+
+```{r}
+# Se hacen predicciones en los datos de entrenamiento
+pred_xgb <- predict(xgb_model, as.matrix(test_data))
+head(pred_xgb)
+```
+
+
+```{r}
+# Se realizan las predicciones
+forest_predicciones<-predict(forest_model, test_data)
+head(forest_predicciones)
+```
+
+
+```{r}
+resultadosXGB <- test_df %>% select("id")
+resultadosXGB$median_house_value <- pred_xgb
+resultadosXGB
+```
+
+
+```{r}
+resultadosForest <- test_df %>% select("id")
+resultadosForest$median_house_value <- forest_predicciones
+resultadosForest
+```
+
+```{r}
+current_date_time <- format(Sys.time(), "%Y-%m-%d_%H%M%S")
+nombreArchivo<-paste("data/resultados/resultadosModeloGanador_", as.character(current_date_time), ".csv", sep="")
+# Se mandan los resultados para un archivo csv, para subir a kaggle
+resultadosXGB %>% write_csv(nombreArchivo)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
