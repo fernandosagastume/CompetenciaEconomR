@@ -43,21 +43,8 @@ head(train_df)
 
 ```{r}
 # Se reemplazan los valores nulos con la media en train_df
-train_df <- na.aggregate(train_df, FUN = mean)
+train_df <- na.aggregate(train_df, FUN = median)
 head(train_df)
-```
-
-```{r}
-# Selección de variables predictoras
-predictores_forest <- train_df[, c("housing_median_age", "total_rooms", "median_income", "households", "ocean_proximity", "total_bedrooms")]
-
-# Variable objetivo
-target_forest <- train_df$median_house_value
-
-# Crear el modelo de Random Forest
-forest_model <- randomForest(predictores_forest, target_forest) # Resultado en el leaderboard 49161.05484
-
-summary(forest_model)
 ```
 
 
@@ -78,15 +65,21 @@ y_xgb <- train_df[[target_var]]
   subsample = 0.8,
   colsample_bytree = 0.8
 )"
+#El mejor modelo de momento 42924.73116
+"
+xgb_model <- xgboost(data = as.matrix(X_xgb), 
+                     label = y_xgb, 
+                     nrounds = 2000,
+                     learning_rate = 0.23,
+                     objective = reg:squarederror)
+"
 
 # Se entrena el modelo de XGBoost
 xgb_model <- xgboost(data = as.matrix(X_xgb), 
                      label = y_xgb, 
                      nrounds = 2000,
-                     eta = 0.4,
-                     objective = "reg:squarederror") # Mejor modelo de momento 44435.01314
-
-
+                     learning_rate = 0.23,
+                     objective = "reg:squarederror")
 ```
 
 ```{r}
@@ -95,20 +88,14 @@ test_data <- test_df %>%
   select("housing_median_age", "total_rooms","median_income", "households", "total_bedrooms", "ocean_proximity")
 
 # Se remplazan los valores faltantes en el conjunto de datos de prueba con la media
-test_data <- na.aggregate(test_data, FUN = mean)
+test_data <- na.aggregate(test_data, FUN = median)
 ```
+
 
 ```{r}
 # Se hacen predicciones en los datos de entrenamiento
 pred_xgb <- predict(xgb_model, as.matrix(test_data))
-head(pred_xgb)
-```
-
-
-```{r}
-# Se realizan las predicciones
-forest_predicciones<-predict(forest_model, test_data)
-head(forest_predicciones)
+pred_xgb[1:10]
 ```
 
 
@@ -116,13 +103,6 @@ head(forest_predicciones)
 resultadosXGB <- test_df %>% select("id")
 resultadosXGB$median_house_value <- pred_xgb
 resultadosXGB
-```
-
-
-```{r}
-resultadosForest <- test_df %>% select("id")
-resultadosForest$median_house_value <- forest_predicciones
-resultadosForest
 ```
 
 ```{r}
