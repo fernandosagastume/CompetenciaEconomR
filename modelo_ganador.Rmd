@@ -50,7 +50,7 @@ head(train_df)
 
 ```{r}
 # Se definen los predictores y la variable objetivo
-predictores <- c("housing_median_age", "total_rooms","median_income", "households", "total_bedrooms", "ocean_proximity")
+predictores <- c("longitude","latitude","housing_median_age", "population","median_income", "households", "total_bedrooms")
 target_var <- "median_house_value"
 
 # Se crea la matriz de diseño y la variable respuesta
@@ -65,12 +65,12 @@ y_xgb <- train_df[[target_var]]
   subsample = 0.8,
   colsample_bytree = 0.8
 )"
-#El mejor modelo de momento 42924.73116
+#El mejor modelo de momento 30586.89332
 "
 xgb_model <- xgboost(data = as.matrix(X_xgb), 
                      label = y_xgb, 
                      nrounds = 2000,
-                     learning_rate = 0.23,
+                     learning_rate = 0.21,
                      objective = reg:squarederror)
 "
 
@@ -78,14 +78,14 @@ xgb_model <- xgboost(data = as.matrix(X_xgb),
 xgb_model <- xgboost(data = as.matrix(X_xgb), 
                      label = y_xgb, 
                      nrounds = 2000,
-                     learning_rate = 0.23,
+                     learning_rate = 0.21,
                      objective = "reg:squarederror")
 ```
 
 ```{r}
 # Se toman las variables dependientes del modelo para la predicción
 test_data <- test_df %>% 
-  select("housing_median_age", "total_rooms","median_income", "households", "total_bedrooms", "ocean_proximity")
+  select("longitude","latitude","housing_median_age", "population","median_income", "households", "total_bedrooms")
 
 # Se remplazan los valores faltantes en el conjunto de datos de prueba con la media
 test_data <- na.aggregate(test_data, FUN = median)
