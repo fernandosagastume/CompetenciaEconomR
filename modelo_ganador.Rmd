@@ -65,21 +65,23 @@ y_xgb <- train_df[[target_var]]
   subsample = 0.8,
   colsample_bytree = 0.8
 )"
-#El mejor modelo de momento 30586.89332
+#El mejor modelo de momento 29790.14463
 "
 xgb_model <- xgboost(data = as.matrix(X_xgb), 
                      label = y_xgb, 
                      nrounds = 2000,
-                     learning_rate = 0.21,
-                     objective = reg:squarederror)
+                     learning_rate = 0.205,
+                     objective = reg:squarederror,
+                     alpha = 0.8)
 "
 
 # Se entrena el modelo de XGBoost
 xgb_model <- xgboost(data = as.matrix(X_xgb), 
                      label = y_xgb, 
                      nrounds = 2000,
-                     learning_rate = 0.21,
-                     objective = "reg:squarederror")
+                     learning_rate = 0.205,
+                     objective = "reg:squarederror",
+                     alpha = 0.5)
 ```
 
 ```{r}
