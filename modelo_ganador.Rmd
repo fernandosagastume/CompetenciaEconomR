@@ -78,10 +78,10 @@ xgb_model <- xgboost(data = as.matrix(X_xgb),
 # Se entrena el modelo de XGBoost
 xgb_model <- xgboost(data = as.matrix(X_xgb), 
                      label = y_xgb, 
-                     nrounds = 2000,
+                     nrounds = 4500,
                      learning_rate = 0.205,
                      objective = "reg:squarederror",
-                     alpha = 0.5)
+                     alpha = 0.62, print_every_n=500)
 ```
 
 ```{r}
