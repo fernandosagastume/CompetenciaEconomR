@@ -1,5 +1,7 @@
 # Predict House Price - Econometría en R 2023
 
+[Link del Vídeo de Explicación](https://drive.google.com/file/d/1C7JKEzxYVwedviZ69bOP846_DaL0mR6C/view?usp=sharing)
+
 Datos referentes para la competencia:
 
 * train.csv: el cual contiene todas las columnas necesarias para desarrollar un modelo de predicción.
