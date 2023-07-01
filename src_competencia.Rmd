@@ -155,15 +155,6 @@ resultadosForest$median_house_value <- forest_predicciones
 resultadosForest
 ```
 
-## Código que crea el archivo para hacer submissions
-
-```{r}
-current_date_time <- format(Sys.time(), "%Y-%m-%d_%H%M%S")
-nombreArchivo<-paste("data/resultados/resultadosModelo_", as.character(current_date_time), ".csv", sep="")
-# Se mandan los resultados para un archivo csv, para subir a kaggle
-resultadosForest %>% write_csv(nombreArchivo)
-```
-
 
 ## Modelo utilizando tecnicas de regularización
 
@@ -206,7 +197,14 @@ resultadosForest %>% write_csv(nombreArchivo)
 ```
 
 
+## Código que crea el archivo para hacer submissions
 
+```{r}
+current_date_time <- format(Sys.time(), "%Y-%m-%d_%H%M%S")
+nombreArchivo<-paste("data/resultados/resultadosModelo_", as.character(current_date_time), ".csv", sep="")
+# Se mandan los resultados para un archivo csv, para subir a kaggle
+resultadosForest %>% write_csv(nombreArchivo)
+```
 
 
 
